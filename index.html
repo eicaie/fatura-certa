@@ -677,6 +677,14 @@
       </div>
     </div>
     <p class="install-preview" id="installPreview" style="display:none;"></p>
+    <div class="field" id="installStartField" style="display:none;">
+      <label>1ª parcela cai na fatura que fecha em</label>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <button type="button" id="installStartPrev" class="icon-btn" style="width:30px;height:30px;flex-shrink:0;"></button>
+        <div style="flex:1;text-align:center;font-size:13.5px;color:var(--text);" id="installStartLabel"></div>
+        <button type="button" id="installStartNext" class="icon-btn" style="width:30px;height:30px;flex-shrink:0;"></button>
+      </div>
+    </div>
     <p class="install-info" id="installInfo" style="display:none;"></p>
     <div class="field" id="dateFieldWrap">
       <label for="expDate">Data</label>
@@ -1101,22 +1109,25 @@
     var viewDate = new Date(today.getFullYear(), today.getMonth()+overviewMonthOffset, 1);
     document.getElementById('ovMonthLabel').textContent = monthLabel(viewDate);
 
-    var groups = getPurchaseGroups();
-    var inMonth = groups.filter(function(g){
-      var gd = parseISO(g.date);
-      return gd.getFullYear()===viewDate.getFullYear() && gd.getMonth()===viewDate.getMonth();
+    // cada lançamento (parcela ou gasto simples) conta no mês da SUA própria data —
+    // uma compra em 5x aparece com 1/5 em cada um dos 5 meses, não tudo de uma vez na compra
+    var inMonth = state.expenses.filter(function(e){
+      var ed = parseISO(e.date);
+      return ed.getFullYear()===viewDate.getFullYear() && ed.getMonth()===viewDate.getMonth();
     });
 
     var totalNet = 0, totalYouPay = 0, totalOwedToYou = 0, hasSplit = false;
     var byCategory = {};
-    inMonth.forEach(function(g){
-      var net = g.total - g.refundTotal;
-      var youPay = net - g.splitTotal;
+    inMonth.forEach(function(e){
+      var net = netAmount(e);
+      var split = e.splitAmount || 0;
+      var youPay = net - split;
       totalNet += net;
       totalYouPay += youPay;
-      totalOwedToYou += g.splitTotal;
-      if(g.splitTotal > 0) hasSplit = true;
-      byCategory[g.category] = (byCategory[g.category]||0) + youPay;
+      totalOwedToYou += split;
+      if(split > 0) hasSplit = true;
+      var cat = e.category || 'Outros';
+      byCategory[cat] = (byCategory[cat]||0) + youPay;
     });
 
     document.getElementById('ovMonthTotal').innerHTML = moneySplit(totalYouPay);
@@ -1475,10 +1486,25 @@
     document.getElementById('expCategoryCustomWrap').style.display = (this.value==='__custom__') ? 'block' : 'none';
   });
 
+  var installStartOffset = 0;
+
+  function updateInstallStartLabel(){
+    var cardId = document.getElementById('expCard').value;
+    var card = state.cards.filter(function(c){ return c.id===cardId; })[0];
+    var dateVal = document.getElementById('expDate').value;
+    var label = document.getElementById('installStartLabel');
+    if(!card || !dateVal){ label.textContent = '—'; return; }
+    var closingDay = derivedClosingDay(card);
+    var base = defaultClosingDateFor(closingDay, parseISO(dateVal));
+    var shifted = installStartOffset === 0 ? base : shiftedClosing(closingDay, base, installStartOffset);
+    label.textContent = fmtBR(shifted) + ' · ' + monthLabel(shifted);
+  }
+
   function updateInstallPreview(){
     var on = document.getElementById('expInstallToggle').checked;
     document.getElementById('installCountField').style.display = on ? 'block' : 'none';
     document.getElementById('installPreview').style.display = on ? 'block' : 'none';
+    document.getElementById('installStartField').style.display = on ? 'block' : 'none';
     document.getElementById('expValueLabel').textContent = on ? 'Valor total da compra (R$)' : 'Valor (R$)';
     if(!on) return;
     var total = parseFloat((document.getElementById('expValue').value||'').replace(',', '.'));
@@ -1490,12 +1516,19 @@
     }else{
       preview.textContent = 'Informe o valor total e o número de parcelas';
     }
+    updateInstallStartLabel();
   }
   ['change','input'].forEach(function(evt){
     document.getElementById('expInstallToggle').addEventListener(evt, updateInstallPreview);
     document.getElementById('expValue').addEventListener(evt, updateInstallPreview);
     document.getElementById('expInstallCount').addEventListener(evt, updateInstallPreview);
+    document.getElementById('expCard').addEventListener(evt, updateInstallStartLabel);
+    document.getElementById('expDate').addEventListener(evt, updateInstallStartLabel);
   });
+  document.getElementById('installStartPrev').innerHTML = ICON_CHEVRON_LEFT;
+  document.getElementById('installStartNext').innerHTML = ICON_CHEVRON_RIGHT;
+  document.getElementById('installStartPrev').addEventListener('click', function(){ installStartOffset--; updateInstallStartLabel(); });
+  document.getElementById('installStartNext').addEventListener('click', function(){ installStartOffset++; updateInstallStartLabel(); });
 
   document.getElementById('expSplitToggle').addEventListener('change', function(){
     var on = this.checked;
@@ -1541,6 +1574,7 @@
       fillCategorySelect(exp.category);
       document.getElementById('expInstallToggle').checked = false;
       toggleWrap.style.display = 'none';
+      document.getElementById('installStartField').style.display = 'none';
       document.getElementById('installCountField').style.display = 'none';
       document.getElementById('installPreview').style.display = 'none';
       document.getElementById('expValueLabel').textContent = 'Valor (R$)';
@@ -1580,6 +1614,7 @@
       document.getElementById('expInstallCount').value = '';
       document.getElementById('expInstallToggle').checked = false;
       document.getElementById('expDate').value = toISO(todayDate());
+      installStartOffset = 0;
       fillCategorySelect('Outros');
       toggleWrap.style.display = 'flex';
       installInfo.style.display = 'none';
@@ -1663,7 +1698,8 @@
       var splitParts = splitOn ? splitInstallments(splitAmt, n) : null;
       var groupId = uid();
       var closingDay = derivedClosingDay(card);
-      var cycleClosing = defaultClosingDateFor(closingDay, parseISO(date));
+      var baseClosing = defaultClosingDateFor(closingDay, parseISO(date));
+      var cycleClosing = installStartOffset === 0 ? baseClosing : shiftedClosing(closingDay, baseClosing, installStartOffset);
       for(var i=0;i<n;i++){
         if(i>0){ cycleClosing = shiftedClosing(closingDay, cycleClosing, 1); }
         state.expenses.push({
