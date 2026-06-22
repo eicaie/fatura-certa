@@ -16,16 +16,16 @@
 
   :root{
     color-scheme: dark;
-    --bg:#15101F;
-    --bg-elevated:#1F1830;
-    --bg-elevated-2:#2A2143;
+    --bg:#0E1420;
+    --bg-elevated:#161F30;
+    --bg-elevated-2:#1F2B40;
     --text:#FFFFFF;
-    --text-dim:#B6ABCE;
-    --text-faint:#7C7195;
-    --line:#382C54;
+    --text-dim:#A6B3C7;
+    --text-faint:#69748A;
+    --line:#2B3850;
     --santander:#EC0000;
     --nubank:#820AD1;
-    --purple:#9747FF;
+    --blue:#0A84FF;
     --mint:#00D9A3;
     --warn:#FFB23E;
     --danger:#FF5C7A;
@@ -36,8 +36,8 @@
   html,body{margin:0;padding:0;}
   body{
     background:
-      radial-gradient(60% 40% at 85% 0%, rgba(151,71,255,.20), transparent 70%),
-      radial-gradient(70% 45% at 10% 100%, rgba(151,71,255,.10), transparent 70%),
+      radial-gradient(60% 40% at 85% 0%, rgba(10,132,255,.20), transparent 70%),
+      radial-gradient(70% 45% at 10% 100%, rgba(10,132,255,.10), transparent 70%),
       var(--bg);
     background-attachment:fixed;
     color:var(--text);
@@ -84,7 +84,7 @@
     margin:0;
     letter-spacing:-.01em;
   }
-  header.top h1 .dot{color:var(--purple);}
+  header.top h1 .dot{color:var(--blue);}
 
   main{padding:0 16px; max-width:560px; margin:0 auto;}
 
@@ -106,7 +106,7 @@
     position:absolute;
     left:0; top:1px; bottom:1px;
     width:2px;
-    background:var(--purple);
+    background:var(--blue);
     opacity:.6;
     border-radius:2px;
   }
@@ -120,13 +120,13 @@
     width:100%;
     padding:16px;
     border-radius:999px;
-    background:var(--purple);
+    background:var(--blue);
     color:#FFFFFF;
     font-weight:700;
     font-size:15px;
     text-align:center;
     margin-top:4px;
-    box-shadow:0 10px 24px -12px rgba(151,71,255,.5);
+    box-shadow:0 10px 24px -12px rgba(10,132,255,.5);
   }
   .primary-cta:active{transform:scale(.98);}
 
@@ -152,7 +152,7 @@
   }
   .tab-btn .tab-dot{width:5px; height:5px; border-radius:50%; background:transparent;}
   .tab-btn.active{color:var(--text);}
-  .tab-btn.active .tab-dot{background:var(--purple);}
+  .tab-btn.active .tab-dot{background:var(--blue);}
 
   /* ---------- overview tab ---------- */
   .month-nav{display:flex; align-items:center; justify-content:center; gap:18px; margin-bottom:20px;}
@@ -168,16 +168,19 @@
   .category-row .top-line{display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px;}
   .category-row .top-line b{font-weight:500; font-weight:600;}
   .category-row .bar-track{height:6px; border-radius:4px; background:rgba(255,255,255,.07);}
-  .category-row .bar-fill{height:100%; border-radius:4px; background:var(--purple);}
+  .category-row .bar-fill{height:100%; border-radius:4px; background:var(--blue);}
 
   .evo-chart{display:flex; align-items:flex-end; gap:8px; margin:6px 2px 0;}
-  .evo-col{flex:1; display:flex; flex-direction:column; align-items:center;}
+  .evo-col{flex:1; display:flex; flex-direction:column; align-items:center; cursor:pointer; padding:2px 0; border-radius:8px;}
+  .evo-col:active{background:rgba(255,255,255,.06);}
   .evo-bar-wrap{height:100px; width:100%; display:flex; align-items:flex-end; justify-content:center;}
   .evo-bar{width:55%; border-radius:5px 5px 2px 2px; background:var(--bg-elevated-2); min-height:3px;}
-  .evo-bar.current{background:var(--purple);}
+  .evo-bar.current{background:var(--blue);}
+  .evo-bar.selected:not(.current){box-shadow:0 0 0 2px var(--blue) inset; background:rgba(10,132,255,.22);}
   .evo-value{font-size:10px; color:var(--text-dim); margin-bottom:4px; font-weight:600; height:13px;}
   .evo-label{font-size:11px; color:var(--text-faint); margin-top:8px;}
   .evo-label.current{color:var(--text); font-weight:500;}
+  .evo-label.selected{color:var(--text); font-weight:700;}
 
   /* ---------- timeline tab ---------- */
   .timeline-filters{display:flex; flex-direction:column; gap:8px; margin-bottom:12px;}
@@ -202,9 +205,9 @@
     margin-bottom:16px;
   }
   .filter-chip.active{
-    background:rgba(151,71,255,.16);
-    color:var(--purple);
-    border-color:rgba(151,71,255,.5);
+    background:rgba(10,132,255,.16);
+    color:var(--blue);
+    border-color:rgba(10,132,255,.5);
   }
 
   .timeline-month{
@@ -245,7 +248,7 @@
   .slip .stripe{
     margin:0 -20px 18px;
     padding:18px 20px 16px;
-    background:var(--accent, var(--purple));
+    background:var(--accent, var(--blue));
     position:relative;
   }
   .slip .stripe .card-name{
@@ -320,7 +323,7 @@
   }
   .btn.ghost{background:transparent; border:1px solid var(--line); color:var(--text-dim);}
   .btn.accent{
-    background:var(--accent, var(--purple));
+    background:var(--accent, var(--blue));
     color:#FFFFFF;
     font-weight:600;
     box-shadow:0 4px 14px -8px rgba(0,0,0,.4);
@@ -470,7 +473,7 @@
     font-size:16px;
     font-family:inherit;
   }
-  .field input:focus, .field select:focus{outline:2px solid var(--purple); outline-offset:0;}
+  .field input:focus, .field select:focus{outline:2px solid var(--blue); outline-offset:0;}
   .field-row{display:flex; gap:10px;}
   .field-row .field{flex:1;}
   .color-row{display:flex; gap:10px; margin-top:4px;}
@@ -558,7 +561,7 @@
         <button id="ovNextMonth"></button>
       </div>
       <div class="stat-block">
-        <p class="label">você gastou</p>
+        <p class="label">valor a pagar</p>
         <p class="amount num" id="ovMonthTotal"></p>
         <p class="sub" id="ovMonthSub"></p>
       </div>
@@ -931,6 +934,16 @@
     var refundsTotal = (e.refunds||[]).reduce(function(s,r){ return s+r.amount; }, 0);
     return e.amount - refundsTotal;
   }
+  // em qual data esse lançamento específico vence (não quando foi comprado, nem quando a
+  // fatura fecha — quando você efetivamente vai ter que pagar por ele)
+  function dueDateForExpense(card, dateISO){
+    var closingDay = derivedClosingDay(card);
+    var defClosing = defaultClosingDateFor(closingDay, parseISO(dateISO));
+    var key = toISO(defClosing);
+    var overrides = card.closingOverrides || {};
+    var actualClosing = overrides[key] ? parseISO(overrides[key]) : defClosing;
+    return dueDateForClosing(card.dueDay, actualClosing);
+  }
 
   /* ===================== CYCLE BUILDING ===================== */
   // Retorna os ciclos de fatura de um cartão: {closingDate, startDate, dueDate, total, expenses, status}
@@ -1083,11 +1096,13 @@
     var viewDate = new Date(today.getFullYear(), today.getMonth()+overviewMonthOffset, 1);
     document.getElementById('ovMonthLabel').textContent = monthLabel(viewDate);
 
-    // cada lançamento (parcela ou gasto simples) conta no mês da SUA própria data —
-    // uma compra em 5x aparece com 1/5 em cada um dos 5 meses, não tudo de uma vez na compra
+    // cada lançamento conta no mês em que ELE VENCE (não quando foi comprado nem quando a
+    // fatura fecha) — é isso que efetivamente sai do seu bolso naquele mês
     var inMonth = state.expenses.filter(function(e){
-      var ed = parseISO(e.date);
-      return ed.getFullYear()===viewDate.getFullYear() && ed.getMonth()===viewDate.getMonth();
+      var card = state.cards.filter(function(c){ return c.id===e.cardId; })[0];
+      if(!card) return false;
+      var due = dueDateForExpense(card, e.date);
+      return due.getFullYear()===viewDate.getFullYear() && due.getMonth()===viewDate.getMonth();
     });
 
     var totalNet = 0, totalYouPay = 0, totalOwedToYou = 0, hasSplit = false;
@@ -1140,12 +1155,13 @@
     var maxForecast = 0;
     forecast.forEach(function(f){ if(f.value>maxForecast) maxForecast=f.value; });
     if(maxForecast<=0) maxForecast = 1;
-    document.getElementById('ovChart').innerHTML = forecast.map(function(f){
+    document.getElementById('ovChart').innerHTML = forecast.map(function(f, i){
       var h = f.value>0 ? Math.max(Math.round((f.value/maxForecast)*100), 4) : 2;
-      return '<div class="evo-col">'+
+      var selected = (overviewMonthOffset === i);
+      return '<div class="evo-col" data-month-offset="'+i+'">'+
         '<span class="evo-value">'+(f.value>0?fmtMoneyShort(f.value):'')+'</span>'+
-        '<div class="evo-bar-wrap"><div class="evo-bar'+(f.isCurrent?' current':'')+'" style="height:'+h+'px"></div></div>'+
-        '<span class="evo-label'+(f.isCurrent?' current':'')+'">'+f.label+'</span>'+
+        '<div class="evo-bar-wrap"><div class="evo-bar'+(f.isCurrent?' current':'')+(selected?' selected':'')+'" style="height:'+h+'px"></div></div>'+
+        '<span class="evo-label'+(f.isCurrent?' current':'')+(selected?' selected':'')+'">'+f.label+'</span>'+
       '</div>';
     }).join('');
   }
@@ -1154,6 +1170,12 @@
   document.getElementById('ovNextMonth').innerHTML = ICON_CHEVRON_RIGHT;
   document.getElementById('ovPrevMonth').addEventListener('click', function(){ overviewMonthOffset--; renderOverview(); });
   document.getElementById('ovNextMonth').addEventListener('click', function(){ overviewMonthOffset++; renderOverview(); });
+  document.getElementById('ovChart').addEventListener('click', function(e){
+    var col = e.target.closest('[data-month-offset]');
+    if(!col) return;
+    overviewMonthOffset = parseInt(col.getAttribute('data-month-offset'), 10);
+    renderOverview();
+  });
 
   /* ===================== RENDER: LINHA DO TEMPO ===================== */
   var tlFilterOwedOnly = false;
