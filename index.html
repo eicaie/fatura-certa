@@ -130,6 +130,27 @@
   }
   .primary-cta:active{transform:scale(.98);}
 
+  .fab{
+    position:fixed;
+    right:18px; bottom:calc(96px + env(safe-area-inset-bottom));
+    width:56px; height:56px;
+    border-radius:50%;
+    background:var(--blue);
+    color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 14px 28px -10px rgba(10,132,255,.6);
+    z-index:35;
+  }
+  .fab::before, .fab::after{
+    content:'';
+    position:absolute;
+    background:#fff;
+    border-radius:2px;
+  }
+  .fab::before{width:18px; height:2.5px;}
+  .fab::after{width:2.5px; height:18px;}
+  .fab:active{transform:scale(.94);}
+
   /* ---------- tabbar ---------- */
   .tabbar{
     position:fixed; left:14px; right:14px; bottom:calc(10px + env(safe-area-inset-bottom));
@@ -155,6 +176,19 @@
   .tab-btn.active .tab-dot{background:var(--blue);}
 
   /* ---------- overview tab ---------- */
+  .summary-card{
+    background:var(--bg-elevated);
+    border-radius:26px;
+    padding:24px 20px;
+    border:1px solid rgba(255,255,255,.06);
+    box-shadow:0 16px 32px -22px rgba(0,0,0,.7);
+  }
+  .card-divider{height:1px; background:var(--line); margin:24px 0 18px;}
+  .card-subtitle{
+    font-size:12px; text-transform:uppercase; letter-spacing:.1em;
+    color:var(--text-faint); margin:0 0 14px;
+  }
+
   .month-nav{display:flex; align-items:center; justify-content:center; gap:18px; margin-bottom:20px;}
   .month-nav button{display:flex; align-items:center; justify-content:center; color:var(--text-dim); width:32px; height:32px; border-radius:50%; background:var(--bg-elevated-2);}
   .month-nav .m-label{font-family:inherit; font-size:16px; font-weight:700; min-width:140px; text-align:center;}
@@ -163,6 +197,9 @@
   .stat-block .label{font-size:12px; color:var(--text-faint); margin:0 0 6px; text-transform:uppercase; letter-spacing:.08em;}
   .stat-block .amount{font-size:32px; margin:0;}
   .stat-block .sub{font-size:12.5px; color:var(--text-dim); margin-top:6px; min-height:16px;}
+
+  .fade-update{animation:fadeUpdate .28s ease-out;}
+  @keyframes fadeUpdate{from{opacity:.35; transform:translateY(3px);} to{opacity:1; transform:translateY(0);}}
 
   .category-list{display:flex; flex-direction:column; gap:13px;}
   .category-row .top-line{display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px;}
@@ -174,7 +211,7 @@
   .evo-col{flex:1; display:flex; flex-direction:column; align-items:center; cursor:pointer; padding:2px 0; border-radius:8px;}
   .evo-col:active{background:rgba(255,255,255,.06);}
   .evo-bar-wrap{height:100px; width:100%; display:flex; align-items:flex-end; justify-content:center;}
-  .evo-bar{width:55%; border-radius:5px 5px 2px 2px; background:var(--bg-elevated-2); min-height:3px;}
+  .evo-bar{width:55%; border-radius:5px 5px 2px 2px; background:var(--bg-elevated-2); min-height:3px; transition:height .35s cubic-bezier(.22,.9,.34,1);}
   .evo-bar.current{background:var(--blue);}
   .evo-bar.selected:not(.current){box-shadow:0 0 0 2px var(--blue) inset; background:rgba(10,132,255,.22);}
   .evo-value{font-size:10px; color:var(--text-dim); margin-bottom:4px; font-weight:600; height:13px;}
@@ -555,32 +592,28 @@
 <div class="tab-panel active" id="panel-overview">
   <main>
     <section>
-      <div class="month-nav">
-        <button id="ovPrevMonth"></button>
-        <span class="m-label" id="ovMonthLabel"></span>
-        <button id="ovNextMonth"></button>
+      <div class="summary-card">
+        <div class="month-nav">
+          <button id="ovPrevMonth"></button>
+          <span class="m-label" id="ovMonthLabel"></span>
+          <button id="ovNextMonth"></button>
+        </div>
+        <div class="stat-block">
+          <p class="label">valor a pagar</p>
+          <p class="amount num" id="ovMonthTotal"></p>
+          <p class="sub" id="ovMonthSub"></p>
+        </div>
+        <div class="category-list" id="ovCategories"></div>
+
+        <div class="card-divider"></div>
+
+        <p class="card-subtitle">Previsão de pagamento</p>
+        <div class="evo-chart" id="ovChart"></div>
       </div>
-      <div class="stat-block">
-        <p class="label">valor a pagar</p>
-        <p class="amount num" id="ovMonthTotal"></p>
-        <p class="sub" id="ovMonthSub"></p>
-      </div>
-      <div class="category-list" id="ovCategories"></div>
     </section>
 
     <section>
-      <p class="section-title">Previsão de pagamento</p>
-      <div class="evo-chart" id="ovChart"></div>
-    </section>
-
-    <button class="primary-cta" data-open-add>+ Novo lançamento</button>
-  </main>
-</div>
-
-<!-- TAB: LINHA DO TEMPO -->
-<div class="tab-panel" id="panel-timeline">
-  <main>
-    <section>
+      <p class="section-title">Lançamentos</p>
       <div class="timeline-filters">
         <select id="tlFilterCard"></select>
         <select id="tlFilterCategory"></select>
@@ -588,6 +621,7 @@
       <button class="filter-chip" id="tlFilterOwed">A receber de alguém</button>
       <div id="timelineFeed"></div>
     </section>
+
     <button class="primary-cta" data-open-add>+ Novo lançamento</button>
   </main>
 </div>
@@ -613,9 +647,10 @@
   </main>
 </div>
 
+<button class="fab" id="fabAdd" aria-label="Novo lançamento"></button>
+
 <nav class="tabbar">
-  <button class="tab-btn active" data-tab="overview"><span class="tab-dot"></span>Visão</button>
-  <button class="tab-btn" data-tab="timeline"><span class="tab-dot"></span>Linha do tempo</button>
+  <button class="tab-btn active" data-tab="overview"><span class="tab-dot"></span>Resumo</button>
   <button class="tab-btn" data-tab="cards"><span class="tab-dot"></span>Cartões</button>
 </nav>
 
@@ -1087,6 +1122,7 @@
   document.querySelectorAll('[data-open-add]').forEach(function(b){
     b.addEventListener('click', function(){ openExpenseModal(); });
   });
+  document.getElementById('fabAdd').addEventListener('click', function(){ openExpenseModal(); });
 
   /* ===================== RENDER: VISÃO GERAL ===================== */
   var overviewMonthOffset = 0;
@@ -1164,6 +1200,13 @@
         '<span class="evo-label'+(f.isCurrent?' current':'')+(selected?' selected':'')+'">'+f.label+'</span>'+
       '</div>';
     }).join('');
+
+    var card = document.querySelector('.summary-card');
+    if(card){
+      card.classList.remove('fade-update');
+      void card.offsetWidth;
+      card.classList.add('fade-update');
+    }
   }
 
   document.getElementById('ovPrevMonth').innerHTML = ICON_CHEVRON_LEFT;
