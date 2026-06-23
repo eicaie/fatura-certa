@@ -549,6 +549,17 @@
     border-radius:10px;
     margin-bottom:14px;
   }
+  .sched-row{
+    display:flex; justify-content:space-between; align-items:center;
+    font-size:13px; padding:8px 12px;
+    border-bottom:1px solid var(--line);
+  }
+  .sched-row:first-child{border-radius:10px 10px 0 0;}
+  .sched-row:last-child{border-bottom:none; border-radius:0 0 10px 10px;}
+  .sched-row.is-current{background:rgba(10,132,255,.12);}
+  .sched-row .sched-status{font-size:10.5px; color:var(--text-faint); margin-left:6px;}
+  .sched-row.is-current .sched-status{color:var(--blue);}
+  #installScheduleList{background:var(--bg-elevated-2); border-radius:10px; overflow:hidden;}
   .section-divider{
     border-top:1px solid var(--line);
     margin:6px 0 16px;
@@ -698,6 +709,7 @@
       </div>
     </div>
     <p class="install-info" id="installInfo" style="display:none;"></p>
+    <div id="installScheduleList" style="display:none;margin-bottom:14px;"></div>
     <div class="field" id="dateFieldWrap">
       <label for="expDate">Data</label>
       <input id="expDate" type="date">
@@ -1622,11 +1634,28 @@
         dateWrap.style.display = 'none';
         delBtn.textContent = 'Excluir esta parcela';
         delAllBtn.style.display = 'block';
+
+        var cardForSched = state.cards.filter(function(c){ return c.id===exp.cardId; })[0];
+        var related = state.expenses.filter(function(e){ return e.installmentId===exp.installmentId; })
+          .slice().sort(function(a,b){ return a.installmentIndex-b.installmentIndex; });
+        var today = todayDate();
+        var schedHtml = related.map(function(r){
+          var due = cardForSched ? dueDateForExpense(cardForSched, r.date) : parseISO(r.date);
+          var isCurrentRow = r.id === exp.id;
+          var status = due < today ? 'paga' : 'prevista';
+          return '<div class="sched-row'+(isCurrentRow?' is-current':'')+'">' +
+            '<span>'+r.installmentIndex+'/'+r.installmentCount+' · '+monthLabel(due)+'</span>' +
+            '<span>'+fmtMoney(r.amount)+'<span class="sched-status">'+(isCurrentRow?'esta':status)+'</span></span>' +
+          '</div>';
+        }).join('');
+        document.getElementById('installScheduleList').innerHTML = schedHtml;
+        document.getElementById('installScheduleList').style.display = 'block';
       }else{
         installInfo.style.display = 'none';
         dateWrap.style.display = 'block';
         delBtn.textContent = 'Excluir gasto';
         delAllBtn.style.display = 'none';
+        document.getElementById('installScheduleList').style.display = 'none';
       }
       delBtn.style.display = 'block';
 
@@ -1655,6 +1684,7 @@
       fillCategorySelect('Outros');
       toggleWrap.style.display = 'flex';
       installInfo.style.display = 'none';
+      document.getElementById('installScheduleList').style.display = 'none';
       dateWrap.style.display = 'block';
       delBtn.style.display = 'none';
       delAllBtn.style.display = 'none';
